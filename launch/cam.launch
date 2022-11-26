@@ -1,0 +1,4 @@
+<launch>
+  <node name="front_cam" pkg="avm_sys" type="front_cam.py" output="screen">
+  </node>
+</launch>
