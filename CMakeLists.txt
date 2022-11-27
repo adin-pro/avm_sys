@@ -16,6 +16,9 @@ include(cmake/glog.cmake)
 include(cmake/YAML.cmake)
 
 
+file(GLOB_RECURSE ALL_SRCS "*.cpp")
+file(GLOB_RECURSE NODE_SRCS "src/*_node.cpp")
+list(REMOVE_ITEM ALL_SRCS ${NODE_SRCS})
 
 include_directories(
   include
@@ -50,3 +53,10 @@ target_link_libraries(right_cam_node
   ${ALL_TARGET_LIBRARIES}
 )
 
+
+add_executable(image_calib_node src/image_calib_node.cpp ${ALL_SRCS})
+
+target_link_libraries(image_calib_node
+  ${catkin_LIBRARIES}
+  ${ALL_TARGET_LIBRARIES}
+)

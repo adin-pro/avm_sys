@@ -1,14 +1,15 @@
 <launch>
   <!-- load Parameters -->
   <rosparam file="$(find avm_sys)/config/config.yaml" command="load" />
-
-  <node name="front_cam_node" pkg="avm_sys" type="front_cam_node" args="2"  output="screen">
+  <!-- <node name="front_cam_node" pkg="avm_sys" type="front_cam_node" args="8"  output="screen">
   </node>
-  <node name="back_cam_node" pkg="avm_sys" type="back_cam_node" args="4"  output="screen">
+  <node name="back_cam_node" pkg="avm_sys" type="back_cam_node" args="2"  output="screen">
+  </node> -->
+  <node name="left_cam_node" pkg="avm_sys" type="left_cam_node" args="4"  output="screen">
   </node>
-  <node name="left_cam_node" pkg="avm_sys" type="left_cam_node" args="6"  output="screen">
+  <node name="right_cam_node" pkg="avm_sys" type="right_cam_node" args="6"  output="screen">
   </node>
-  <node name="right_cam_node" pkg="avm_sys" type="right_cam_node" args="8"  output="screen">
+  <node name="image_calib_node" pkg="avm_sys" type="image_calib_node"  output="screen">
   </node>
 
 </launch>
