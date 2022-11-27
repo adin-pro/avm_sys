@@ -2,7 +2,7 @@
  * @Author: ding.yin
  * @Date: 2022-11-27 14:19:14
  * @Last Modified by: ding.yin
- * @Last Modified time: 2022-11-27 14:50:56
+ * @Last Modified time: 2022-11-27 14:52:57
  */
 
 #include <deque>
@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
 
     right_sub_ptr->parseData(right_data_buff);
 
-    LOG(INFO) << "Calib" << ros::Time::now();
+    LOG(INFO) << "Calib " << ros::Time::now();
 
     UndistortAndPublish(front_cam, front_data_buff, front_pub_ptr);
 

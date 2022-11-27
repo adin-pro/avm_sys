@@ -6,6 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /unright1
       Splitter Ratio: 0.5
     Tree Height: 363
   - Class: rviz/Selection
@@ -138,7 +139,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: ""
+      Image Topic: /un_right_cam
       Max Value: 1
       Median window: 5
       Min Value: 0
