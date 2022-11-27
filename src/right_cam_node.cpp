@@ -2,7 +2,7 @@
  * @Author: ding.yin
  * @Date: 2022-11-26 15:28:08
  * @Last Modified by: ding.yin
- * @Last Modified time: 2022-11-26 16:01:30
+ * @Last Modified time: 2022-11-27 12:50:54
  */
 
 #include <iostream>
@@ -12,11 +12,23 @@
 #include "glog/logging.h"
 #include "opencv2/opencv.hpp"
 #include "ros/ros.h"
+#include "yaml-cpp/yaml.h"
+
+#include <cv_bridge/cv_bridge.h>
+#include <image_transport/image_transport.h>
 
 int main(int argc, char **argv) {
   ros::init(argc, argv, "right_cam_node");
   ros::NodeHandle nh;
   ros::Rate r(30);
+
+  int width;
+  int height;
+  nh.param<int>("width", width, 1280);
+  nh.param<int>("height", height, 720);
+
+  image_transport::ImageTransport it(nh);
+  image_transport::Publisher publisher = it.advertise("/right_cam", 1000);
 
   cv::VideoCapture cap;
   cv::Mat frame;
@@ -26,16 +38,14 @@ int main(int argc, char **argv) {
   }
   int apiID = cv::CAP_ANY;
   cap.open(device_ID + apiID);
-  cap.set(cv::CAP_PROP_FRAME_WIDTH, 1280);
-  cap.set(cv::CAP_PROP_FRAME_HEIGHT, 720);
-  
+  cap.set(cv::CAP_PROP_FRAME_WIDTH, width);
+  cap.set(cv::CAP_PROP_FRAME_HEIGHT, height);
 
   if (!cap.isOpened()) {
     LOG(ERROR) << "Cap " << device_ID << " failed to open";
     return -1;
   }
-
-
+  // cap.release();
   while (ros::ok()) {
     ros::spinOnce();
     cap.read(frame);
@@ -43,10 +53,17 @@ int main(int argc, char **argv) {
       LOG(INFO) << "Empty Frame";
     } else {
       LOG(INFO) << ros::Time::now();
-      cv::imshow("right cam", frame);
-      cv::waitKey(1);
+      // cv::imshow("right cam", frame);
+      // cv::waitKey(1);
+      ros::Time time = ros::Time::now();
+      std_msgs::Header header;
+      header.stamp = time;
+      header.frame_id = "/base_link";
+      sensor_msgs::ImagePtr img_msg =
+          cv_bridge::CvImage(header, "bgr8", frame).toImageMsg();
+      publisher.publish(img_msg);
     }
-    LOG(INFO) << "RIGHT CAM";
+    // LOG(INFO) << "RIGHT CAM";
     r.sleep();
   }
 

@@ -2,7 +2,7 @@
  * @Author: ding.yin
  * @Date: 2022-11-26 15:28:08
  * @Last Modified by: ding.yin
- * @Last Modified time: 2022-11-26 16:01:30
+ * @Last Modified time: 2022-11-27 12:51:27
  */
 
 #include <iostream>
@@ -13,10 +13,21 @@
 #include "opencv2/opencv.hpp"
 #include "ros/ros.h"
 
+#include <cv_bridge/cv_bridge.h>
+#include <image_transport/image_transport.h>
+
 int main(int argc, char **argv) {
   ros::init(argc, argv, "back_cam_node");
   ros::NodeHandle nh;
   ros::Rate r(30);
+
+  int width;
+  int height;
+  nh.param<int>("width", width, 1280);
+  nh.param<int>("height", height, 720);
+
+  image_transport::ImageTransport it(nh);
+  image_transport::Publisher publisher = it.advertise("/back_cam", 1000);
 
   cv::VideoCapture cap;
   cv::Mat frame;
@@ -26,15 +37,13 @@ int main(int argc, char **argv) {
   }
   int apiID = cv::CAP_ANY;
   cap.open(device_ID + apiID);
-  cap.set(cv::CAP_PROP_FRAME_WIDTH, 1280);
-  cap.set(cv::CAP_PROP_FRAME_HEIGHT, 720);
-  
+  cap.set(cv::CAP_PROP_FRAME_WIDTH, width);
+  cap.set(cv::CAP_PROP_FRAME_HEIGHT, height);
 
   if (!cap.isOpened()) {
     LOG(ERROR) << "Cap " << device_ID << " failed to open";
     return -1;
   }
-
 
   while (ros::ok()) {
     ros::spinOnce();
@@ -43,10 +52,17 @@ int main(int argc, char **argv) {
       LOG(INFO) << "Empty Frame";
     } else {
       LOG(INFO) << ros::Time::now();
-      cv::imshow("back cam", frame);
-      cv::waitKey(1);
+      // cv::imshow("back cam", frame);
+      // cv::waitKey(1);
+      ros::Time time = ros::Time::now();
+      std_msgs::Header header;
+      header.stamp = time;
+      header.frame_id = "/base_link";
+      sensor_msgs::ImagePtr img_msg =
+          cv_bridge::CvImage(header, "bgr8", frame).toImageMsg();
+      publisher.publish(img_msg);
     }
-    LOG(INFO) << "BACK CAM";
+    // LOG(INFO) << "BACK CAM";
     r.sleep();
   }
 
