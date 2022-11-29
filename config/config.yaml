@@ -2,3 +2,4 @@ fps: 30
 width: 1280
 height: 720
 work_dir: /home/adin/catkin_ws/src/avm_sys/
+h_scale: 80 # m/pixel
