@@ -20,7 +20,7 @@ FishEye::FishEye(std::string config_file_path) {
     D.at<double>(i) = node["D"][i].as<double>();
   }
   for (int i = 0; i < 9; ++i) {
-    Homo.at<double>(i) = node["H"][i].as<double>();
+    Homo.at<double>(i / 3, i % 3) = node["H"][i].as<double>();
   }
   K_ = K.clone();
   D_ = D.clone();
@@ -131,7 +131,7 @@ void FishEye::smooth(std::string type, int center_px, int center_py,
 }
 
 void FishEye::GetAVM(cv::Mat &front_all, cv::Mat &back_all, cv::Mat &left_all,
-                     cv::Mat &right_all, cv::Mat& IPM, YAML::Node &node) {
+                     cv::Mat &right_all, cv::Mat &IPM, YAML::Node &node) {
 
   cv::Mat front =
       cv::Mat(front_all.size(), front_all.type(), cv::Scalar(0, 0, 0));
@@ -143,14 +143,21 @@ void FishEye::GetAVM(cv::Mat &front_all, cv::Mat &back_all, cv::Mat &left_all,
       cv::Mat(front_all.size(), front_all.type(), cv::Scalar(0, 0, 0));
 
   // color rectify
+  static std::vector<int> color_bias =
+      node["color_bias"].as<std::vector<int>>();
+  static bool use_smooth = node["use_smooth"].as<bool>();
   for (int m = 0; m < front_all.rows; ++m) {
     uchar *p = front_all.ptr<uchar>(m);
     for (int n = 0; n < front_all.cols; ++n) {
-      if (p[3 * n] == 0)
+      if (p[3 * n] == 0 || p[3 * n] >= 255 - color_bias[0] ||
+          p[3 * n] <= -color_bias[0] || p[3 * n + 1] == 0 ||
+          p[3 * n + 1] >= 255 - color_bias[1] ||
+          p[3 * n + 1] <= -color_bias[1] || p[3 * n + 2] == 0 ||
+          p[3 * n + 2] <= -color_bias[2] || p[3 * n + 2] >= 255 - color_bias[2])
         continue;
-      p[3 * n] = 6 + p[3 * n];          // b
-      p[3 * n + 1] = p[3 * n + 1];      // g
-      p[3 * n + 2] = -8 + p[3 * n + 2]; // r
+      p[3 * n] = color_bias[0] + p[3 * n];         // b
+      p[3 * n + 1] = color_bias[1] + p[3 * n + 1]; // g
+      p[3 * n + 2] = color_bias[2] + p[3 * n + 2]; // r
     }
   }
 
@@ -196,8 +203,16 @@ void FishEye::GetAVM(cv::Mat &front_all, cv::Mat &back_all, cv::Mat &left_all,
   right_less.copyTo(right_roi, right_mask);
   right_less.copyTo(right_roi_ipm, right_mask);
 
-  smooth("left_front", 400, 400, IPM, front, left);
-  smooth("right_front", 400, 400, IPM, front, right);
-  smooth("left_back", 400, 550, IPM, back, left);
-  smooth("right_back", 400, 550, IPM, back, right);
+  if (use_smooth) {
+    smooth("left_front", 400, 400, IPM, front, left);
+    smooth("right_front", 400, 400, IPM, front, right);
+    smooth("left_back", 400, 550, IPM, back, left);
+    smooth("right_back", 400, 550, IPM, back, right);
+  }
+
+  cv::Point pt1(350, 350);
+  // and its bottom right corner.
+  cv::Point pt2(450, 560);
+  // These two calls...
+  cv::rectangle(IPM, pt1, pt2, cv::Scalar(0, 0, 0), -1);
 }

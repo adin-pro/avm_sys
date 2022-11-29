@@ -24,7 +24,8 @@ bool ImageData::syncData(std::deque<ImageData> &unsynced_data,
   return true;
 }
 
-bool ImageData::controlDuration(std::deque<ImageData> &image_deque, double duration) {
+bool ImageData::controlDuration(std::deque<ImageData> &image_deque,
+                                double duration) {
   if (image_deque.size() < 2) {
     return false;
   }
@@ -34,8 +35,8 @@ bool ImageData::controlDuration(std::deque<ImageData> &image_deque, double durat
   return true;
 }
 
-bool ImageData::getImageDataByTS(std::deque<ImageData> &data_deque, double timestamp,
-                      ImageData &result) {
+bool ImageData::getImageDataByTS(std::deque<ImageData> &data_deque,
+                                 double timestamp, ImageData &result) {
   int data_size = data_deque.size();
   if (data_size == 0) {
     LOG(WARNING) << "No data in the deque";
@@ -44,7 +45,7 @@ bool ImageData::getImageDataByTS(std::deque<ImageData> &data_deque, double times
   if (data_size == 1) {
     double ts_diff = timestamp - data_deque.back().time;
     // timestamp diff should be lower 1/freq 30Hz
-    if (ts_diff > 0.04) {
+    if (ts_diff > 0.1) {
       LOG(WARNING) << "Only one data in the deque, timestamp diff is too large "
                    << timestamp << " " << data_deque.back().time;
       return false;
@@ -53,8 +54,9 @@ bool ImageData::getImageDataByTS(std::deque<ImageData> &data_deque, double times
   } else if (timestamp >= data_deque.back().time) {
     double ts_diff = timestamp - data_deque.back().time;
     // timestamp diff should be lower 1/freq 30Hz
-    if (ts_diff > 0.04) {
-      LOG(WARNING) << "Too large time diff " << timestamp << " "
+    if (ts_diff > 0.1) {
+      LOG(WARNING) << std::fixed << std::setprecision(15)
+                   << "Too large time diff " << timestamp << " "
                    << data_deque.back().time;
       return false;
     }
@@ -62,8 +64,9 @@ bool ImageData::getImageDataByTS(std::deque<ImageData> &data_deque, double times
   } else if (timestamp <= data_deque.front().time) {
     double ts_diff = data_deque.front().time - timestamp;
     // timestamp diff should be lower 1/freq 30Hz
-    if (ts_diff > 0.04) {
-      LOG(WARNING) << "Too large time diff " << timestamp << " "
+    if (ts_diff > 0.1) {
+      LOG(WARNING) << std::fixed << std::setprecision(15)
+                   << "Too large time diff " << timestamp << " "
                    << data_deque.front().time;
       return false;
     }
