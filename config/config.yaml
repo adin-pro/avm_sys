@@ -3,6 +3,9 @@ width: 1280
 height: 720
 work_dir: /home/adin/catkin_ws/src/avm_sys/
 h_scale: 80 # m/pixel
-color_bias: [7, 7, 13] # b, g, r
+color_bias_f: [0, 0, 0] # b, g, r
+color_bias_b: [-5, -5, -5] # b, g, r
+color_bias_l: [-10, -11, -10] # b, g, r
+color_bias_r: [-30, -30, -30] # b, g, r
 use_smooth: true
 save_dir: /home/adin/extra/robot_zsh/loop06

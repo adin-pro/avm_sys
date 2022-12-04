@@ -178,6 +178,10 @@ int main(int argc, char **argv) {
       cv::imwrite("/home/adin/extra/fisheye_samples/back_ipm.png", back_ipm);
       cv::imwrite("/home/adin/extra/fisheye_samples/left_ipm.png", left_ipm);
       cv::imwrite("/home/adin/extra/fisheye_samples/right_ipm.png", right_ipm);
+      cv::imwrite("/home/adin/extra/fisheye_samples/front.png", front_fisheye.image);
+      cv::imwrite("/home/adin/extra/fisheye_samples/back.png", back_fisheye.image);
+      cv::imwrite("/home/adin/extra/fisheye_samples/left.png", left_fisheye.image);
+      cv::imwrite("/home/adin/extra/fisheye_samples/right.png", right_fisheye.image);
     }
 
     r.sleep();

@@ -59,6 +59,11 @@ void FishEye::smooth(std::string type, int center_px, int center_py,
         } else if (p_mid[3 * x] == 0) {
           theta = 0.0;
         }
+        if (theta < M_PI * 3.0 / 18.0 || theta > M_PI * 5.0 / 18.0) {
+          continue;
+        }
+        theta = (theta - M_PI * 3.0 / 18.0) /
+                (M_PI * 5.0 / 18.0 - M_PI * 3.0 / 18.0) * M_PI / 2.0;
         p[3 * x] = cos(theta) * cos(theta) * p_side[3 * x] +
                    sin(theta) * sin(theta) * p_mid[3 * x];
         p[3 * x + 1] = cos(theta) * cos(theta) * p_side[3 * x + 1] +
@@ -79,6 +84,11 @@ void FishEye::smooth(std::string type, int center_px, int center_py,
         } else if (p_mid[3 * x] == 0) {
           theta = 0.0;
         }
+        if (theta < M_PI * 3.0 / 18.0 || theta > M_PI * 5.0 / 18.0) {
+          continue;
+        }
+        theta = (theta - M_PI * 3.0 / 18.0) /
+                (M_PI * 5.0 / 18.0 - M_PI * 3.0 / 18.0) * M_PI / 2.0;
         p[3 * x] = cos(theta) * cos(theta) * p_side[3 * x] +
                    sin(theta) * sin(theta) * p_mid[3 * x];
         p[3 * x + 1] = cos(theta) * cos(theta) * p_side[3 * x + 1] +
@@ -99,6 +109,11 @@ void FishEye::smooth(std::string type, int center_px, int center_py,
         } else if (p_mid[3 * x] == 0) {
           theta = 0.0;
         }
+        if (theta < M_PI * 3.0 / 18.0 || theta > M_PI * 5.0 / 18.0) {
+          continue;
+        }
+        theta = (theta - M_PI * 3.0 / 18.0) /
+                (M_PI * 5.0 / 18.0 - M_PI * 3.0 / 18.0) * M_PI / 2.0;
         p[3 * x] = cos(theta) * cos(theta) * p_side[3 * x] +
                    sin(theta) * sin(theta) * p_mid[3 * x];
         p[3 * x + 1] = cos(theta) * cos(theta) * p_side[3 * x + 1] +
@@ -119,6 +134,11 @@ void FishEye::smooth(std::string type, int center_px, int center_py,
         } else if (p_mid[3 * x] == 0) {
           theta = 0.0;
         }
+        if (theta < M_PI * 3.0 / 18.0 || theta > M_PI * 5.0 / 18.0) {
+          continue;
+        }
+        theta = (theta - M_PI * 3.0 / 18.0) /
+                (M_PI * 5.0 / 18.0 - M_PI * 3.0 / 18.0) * M_PI / 2.0;
         p[3 * x] = cos(theta) * cos(theta) * p_side[3 * x] +
                    sin(theta) * sin(theta) * p_mid[3 * x];
         p[3 * x + 1] = cos(theta) * cos(theta) * p_side[3 * x + 1] +
@@ -143,21 +163,76 @@ void FishEye::GetAVM(cv::Mat &front_all, cv::Mat &back_all, cv::Mat &left_all,
       cv::Mat(front_all.size(), front_all.type(), cv::Scalar(0, 0, 0));
 
   // color rectify
-  static std::vector<int> color_bias =
-      node["color_bias"].as<std::vector<int>>();
+  static std::vector<int> color_bias_f =
+      node["color_bias_f"].as<std::vector<int>>();
+  static std::vector<int> color_bias_b =
+      node["color_bias_b"].as<std::vector<int>>();
+  static std::vector<int> color_bias_l =
+      node["color_bias_l"].as<std::vector<int>>();
+  static std::vector<int> color_bias_r =
+      node["color_bias_r"].as<std::vector<int>>();
   static bool use_smooth = node["use_smooth"].as<bool>();
   for (int m = 0; m < front_all.rows; ++m) {
     uchar *p = front_all.ptr<uchar>(m);
     for (int n = 0; n < front_all.cols; ++n) {
-      if (p[3 * n] == 0 || p[3 * n] >= 255 - color_bias[0] ||
-          p[3 * n] <= -color_bias[0] || p[3 * n + 1] == 0 ||
-          p[3 * n + 1] >= 255 - color_bias[1] ||
-          p[3 * n + 1] <= -color_bias[1] || p[3 * n + 2] == 0 ||
-          p[3 * n + 2] <= -color_bias[2] || p[3 * n + 2] >= 255 - color_bias[2])
+      if (p[3 * n] == 0 || p[3 * n] >= 255 - color_bias_f[0] ||
+          p[3 * n] <= -color_bias_f[0] || p[3 * n + 1] == 0 ||
+          p[3 * n + 1] >= 255 - color_bias_f[1] ||
+          p[3 * n + 1] <= -color_bias_f[1] || p[3 * n + 2] == 0 ||
+          p[3 * n + 2] <= -color_bias_f[2] ||
+          p[3 * n + 2] >= 255 - color_bias_f[2])
         continue;
-      p[3 * n] = color_bias[0] + p[3 * n];         // b
-      p[3 * n + 1] = color_bias[1] + p[3 * n + 1]; // g
-      p[3 * n + 2] = color_bias[2] + p[3 * n + 2]; // r
+      p[3 * n] = color_bias_f[0] + p[3 * n];         // b
+      p[3 * n + 1] = color_bias_f[1] + p[3 * n + 1]; // g
+      p[3 * n + 2] = color_bias_f[2] + p[3 * n + 2]; // r
+    }
+  }
+
+  for (int m = 0; m < back_all.rows; ++m) {
+    uchar *p = back_all.ptr<uchar>(m);
+    for (int n = 0; n < back_all.cols; ++n) {
+      if (p[3 * n] == 0 || p[3 * n] >= 255 - color_bias_b[0] ||
+          p[3 * n] <= -color_bias_b[0] || p[3 * n + 1] == 0 ||
+          p[3 * n + 1] >= 255 - color_bias_b[1] ||
+          p[3 * n + 1] <= -color_bias_b[1] || p[3 * n + 2] == 0 ||
+          p[3 * n + 2] <= -color_bias_b[2] ||
+          p[3 * n + 2] >= 255 - color_bias_b[2])
+        continue;
+      p[3 * n] = color_bias_b[0] + p[3 * n];         // b
+      p[3 * n + 1] = color_bias_b[1] + p[3 * n + 1]; // g
+      p[3 * n + 2] = color_bias_b[2] + p[3 * n + 2]; // r
+    }
+  }
+
+  for (int m = 0; m < left_all.rows; ++m) {
+    uchar *p = left_all.ptr<uchar>(m);
+    for (int n = 0; n < left_all.cols; ++n) {
+      if (p[3 * n] == 0 || p[3 * n] >= 255 - color_bias_l[0] ||
+          p[3 * n] <= -color_bias_l[0] || p[3 * n + 1] == 0 ||
+          p[3 * n + 1] >= 255 - color_bias_l[1] ||
+          p[3 * n + 1] <= -color_bias_l[1] || p[3 * n + 2] == 0 ||
+          p[3 * n + 2] <= -color_bias_l[2] ||
+          p[3 * n + 2] >= 255 - color_bias_l[2])
+        continue;
+      p[3 * n] = color_bias_l[0] + p[3 * n];         // b
+      p[3 * n + 1] = color_bias_l[1] + p[3 * n + 1]; // g
+      p[3 * n + 2] = color_bias_l[2] + p[3 * n + 2]; // r
+    }
+  }
+
+  for (int m = 0; m < right_all.rows; ++m) {
+    uchar *p = right_all.ptr<uchar>(m);
+    for (int n = 0; n < right_all.cols; ++n) {
+      if (p[3 * n] == 0 || p[3 * n] >= 255 - color_bias_r[0] ||
+          p[3 * n] <= -color_bias_r[0] || p[3 * n + 1] == 0 ||
+          p[3 * n + 1] >= 255 - color_bias_r[1] ||
+          p[3 * n + 1] <= -color_bias_r[1] || p[3 * n + 2] == 0 ||
+          p[3 * n + 2] <= -color_bias_r[2] ||
+          p[3 * n + 2] >= 255 - color_bias_r[2])
+        continue;
+      p[3 * n] = color_bias_r[0] + p[3 * n];         // b
+      p[3 * n + 1] = color_bias_r[1] + p[3 * n + 1]; // g
+      p[3 * n + 2] = color_bias_r[2] + p[3 * n + 2]; // r
     }
   }
 
@@ -174,19 +249,25 @@ void FishEye::GetAVM(cv::Mat &front_all, cv::Mat &back_all, cv::Mat &left_all,
   front_less.copyTo(front_roi_ipm, front_mask);
 
   // back
-  cv::Mat back_less = back_all(cv::Rect(0, 550, 800, 250)).clone();
+  cv::Mat back_less = back_all(cv::Rect(0, 500, 800, 300)).clone();
   cv::inRange(back_less, cv::Scalar(1, 1, 1), cv::Scalar(255, 255, 255),
               back_mask);
   cv::erode(back_mask, back_mask, cv::Mat());
-  cv::Mat back_roi = back(cv::Rect(0, 550, 800, 250));
-  cv::Mat back_roi_ipm = IPM(cv::Rect(0, 550, 800, 250));
+  cv::Mat back_roi = back(cv::Rect(0, 500, 800, 300));
+  cv::Mat back_roi_ipm = IPM(cv::Rect(0, 500, 800, 300));
   back_less.copyTo(back_roi, back_mask);
   back_less.copyTo(back_roi_ipm, back_mask);
 
   // left
   cv::Mat left_less = left_all(cv::Rect(0, 0, 400, 800)).clone();
+  cv::Mat left_mask_polygen =
+      cv::Mat::zeros(left_less.rows, left_less.cols, CV_8U);
   cv::inRange(left_less, cv::Scalar(1, 1, 1), cv::Scalar(255, 255, 255),
               left_mask);
+  cv::Point pts_l[5] = {cv::Point(0, 0), cv::Point(0, 800), cv::Point(400, 500),
+                        cv::Point(400, 350)};
+  cv::fillConvexPoly(left_mask_polygen, pts_l, 4, cv::Scalar(1));
+  cv::bitwise_and(left_mask, left_mask_polygen, left_mask);
   cv::erode(left_mask, left_mask, cv::Mat());
   cv::Mat left_roi = left(cv::Rect(0, 0, 400, 800));
   cv::Mat left_roi_ipm = IPM(cv::Rect(0, 0, 400, 800));
@@ -195,8 +276,11 @@ void FishEye::GetAVM(cv::Mat &front_all, cv::Mat &back_all, cv::Mat &left_all,
 
   // right
   cv::Mat right_less = right_all(cv::Rect(400, 0, 400, 800)).clone();
-  cv::inRange(right_less, cv::Scalar(1, 1, 1), cv::Scalar(255, 255, 255),
-              right_mask);
+  right_mask = cv::Mat::zeros(right_less.rows, right_less.cols, CV_8U);
+  cv::Point pts_r[5] = {cv::Point(400, 0), cv::Point(400, 800),
+                        cv::Point(0, 500), cv::Point(0, 350)};
+  cv::fillConvexPoly(right_mask, pts_r, 4, cv::Scalar(1));
+
   cv::erode(right_mask, right_mask, cv::Mat());
   cv::Mat right_roi = right(cv::Rect(400, 0, 400, 800));
   cv::Mat right_roi_ipm = IPM(cv::Rect(400, 0, 400, 800));
@@ -204,15 +288,15 @@ void FishEye::GetAVM(cv::Mat &front_all, cv::Mat &back_all, cv::Mat &left_all,
   right_less.copyTo(right_roi_ipm, right_mask);
 
   if (use_smooth) {
-    smooth("left_front", 400, 400, IPM, front, left);
-    smooth("right_front", 400, 400, IPM, front, right);
-    smooth("left_back", 400, 550, IPM, back, left);
-    smooth("right_back", 400, 550, IPM, back, right);
+    smooth("left_front", 400, 350, IPM, front, left);
+    smooth("right_front", 400, 350, IPM, front, right);
+    smooth("left_back", 400, 500, IPM, back, left);
+    smooth("right_back", 400, 500, IPM, back, right);
   }
 
-  cv::Point pt1(350, 350);
+  cv::Point pt1(360, 330);
   // and its bottom right corner.
-  cv::Point pt2(450, 560);
+  cv::Point pt2(430, 520);
   // These two calls...
   cv::rectangle(IPM, pt1, pt2, cv::Scalar(0, 0, 0), -1);
 }
